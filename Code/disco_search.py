@@ -59,9 +59,9 @@ class DiscoSearch(UKGWAView):
             out_fields.append(field_value)
          return out_fields
 
-    def _page_iterator(self,search_string):
+    def _page_iterator(self,search_string, departments = []):
 
-        rjson = self._do_search(search_string, [])
+        rjson = self._do_search(search_string, departments)
         searches = []
         print("Departments:",len(rjson["departments"]))
         if rjson["count"] <= self.search_limit:
@@ -154,3 +154,4 @@ class DiscoSearch(UKGWAView):
         this_text = self._clean_text(this_text)
 
         return this_text
+
