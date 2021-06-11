@@ -27,6 +27,11 @@ class DiscoSearch(UKGWAView):
         self.max_sample = 500
         self.search_limit = search_limit
 
+    def add_entry(self, search_string, start_series=[]):
+
+        for rec in self._page_iterator(search_string, start_series):
+            super().add_entry(rec[0], rec)
+
     def set_random(self, randomised):
 
         self.randomised = randomised
@@ -43,7 +48,7 @@ class DiscoSearch(UKGWAView):
         myparams = {}
         r=s.get(url, headers=headers, params=myparams); #send the url with our added parameters, call the response "r"
         r.raise_for_status(); #This checks that we received an http status 200 for the server response
-        print(len(r.json()["records"]),url)
+        #print(len(r.json()["records"]),url)
 
         return r.json()
 
@@ -63,9 +68,13 @@ class DiscoSearch(UKGWAView):
 
         rjson = self._do_search(search_string, departments)
         searches = []
-        print("Departments:",len(rjson["departments"]))
         if rjson["count"] <= self.search_limit:
             searches.append([])
+            for rec in rjson["records"]:
+                fields = self._prep_record(rec)
+                yield fields
+
+
         else:
             departments = rjson["departments"][:]
             remaining = self.search_limit
@@ -76,7 +85,7 @@ class DiscoSearch(UKGWAView):
                 if departments[0]["count"] >= self.search_limit:
                     dep = departments.pop(0)
                     searches.append([dep])
-                    print("Adding",dep)
+                    #print("Adding",dep)
                     added += 1
                     continue
 
@@ -86,7 +95,7 @@ class DiscoSearch(UKGWAView):
                     del departments[dep_pos]
                     continue
                 if dep_pos == len(departments)-1 or remaining == 0:
-                    print("Adding",dep_list, remaining)
+                    #print("Adding",dep_list, remaining)
                     searches.append(dep_list)
                     added += len(dep_list)
                     remaining = self.search_limit
@@ -96,15 +105,15 @@ class DiscoSearch(UKGWAView):
                 dep_pos += 1
             if len(dep_list) > 0:
                 searches.append(dep_list)
-                print("Adding:", len(dep_list),"deps")
+                #print("Adding:", len(dep_list),"deps")
                 added += len(dep_list)
-            print("Added:",added)
+            #print("Added:",added)
 
             while len(searches) > 0:
                 next_search = searches.pop(0)
                 total_count = sum([x["count"] for x in next_search])
                 codes = [x["code"] for x in next_search]
-                print("Searching for", codes,"Records:",total_count)
+                #print("Searching for", codes,"Records:",total_count)
                 if total_count > self.search_limit:
                     total_count = self.search_limit
                 pages = total_count / self.page_limit
@@ -155,3 +164,13 @@ class DiscoSearch(UKGWAView):
 
         return this_text
 
+
+if __name__ == "__main__":
+
+    D = DiscoSearch()
+
+    D.add_entry("potato", ["T"])
+
+    for d in D:
+        print(d)
+        break
