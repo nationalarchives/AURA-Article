@@ -4,7 +4,7 @@ from urllib.request import urlopen
 import re
 from bs4 import BeautifulSoup
 from ukgwa_view import UKGWAView
-#from ukgwa_textindex import UKGWATextIndex
+from ukgwa_textindex import UKGWATextIndex
 import random
 import networkx as nx
 from operator import itemgetter
@@ -15,13 +15,13 @@ class DiscoSearch(UKGWAView):
     def __init__(self, page_limit=100, search_limit=1000, randomised=False):
 
         super().__init__()
-        self.field_list = ["id", "description", "startDate", "endDate", "urlParameters"] # Discovery fields
+        self.field_list = ["id", "description", "startDate", "endDate", "urlParameters", "adminHistory", "context", "taxonomies"] # Discovery fields
         #self.field_list = ["id","coveringDates","coveringFromDate","coveringToDate","recordOpeningDate",["scopeContent","description"],
         #                   "closureType","citableReference","isParent"]
         self.page_limit = page_limit
         self.randomised = randomised
         self.ABSOLUTEMAX = 10000
-        self.fields = {"IAID" : 0, "Description" : 1, "StartDate": 2, "EndDate": 3, "Path": 4}
+        self.fields = {"IAID" : 0, "Description" : 1, "StartDate": 2, "EndDate": 3, "Path": 4, "Admin": 5, "Context": 6, "Taxonomy": 7}
         self.sample_pct = 0.01
         self.min_sample = 10
         self.max_sample = 500
@@ -39,7 +39,7 @@ class DiscoSearch(UKGWAView):
     def _do_search(self, search_string, departments, page_number = 1, page_size=15):
 
         headers={"Accept": "application/json"}; #we want the API to return data in JSON format
-        url="https://discovery.nationalarchives.gov.uk/API/search/v1/records?sps.recordCollections=Records&sps.heldByCode=TNA&sps.searchQuery=" + \
+        url="http://discovery.nationalarchives.gov.uk/API/search/v1/records?sps.recordCollections=Records&sps.heldByCode=TNA&sps.searchQuery=" + \
              search_string + "&sps.page=" + str(page_number) + "&sps.resultsPageSize=" + str(page_size)
         for d in departments:
             url += "&sps.departments=" + d
@@ -68,12 +68,16 @@ class DiscoSearch(UKGWAView):
 
         rjson = self._do_search(search_string, departments)
         searches = []
+        #print("Record count:", rjson["count"])
         if rjson["count"] <= self.search_limit:
+            # TODO: There's a bug here because this bit should loop through pages as below
+            # want to choose the right way to do it and avoid duplicating code.
+            # Maybe rename this function to department_iterator and have a separate one for iterating the actual pages?
+            # Not urgent for now.
             searches.append([])
             for rec in rjson["records"]:
                 fields = self._prep_record(rec)
                 yield fields
-
 
         else:
             departments = rjson["departments"][:]
@@ -169,8 +173,43 @@ if __name__ == "__main__":
 
     D = DiscoSearch()
 
-    D.add_entry("potato", ["T"])
+    D.add_entry("web AND snapshots", [])
 
+    c = 0
+    taxonomies = {}
     for d in D:
-        print(d)
-        break
+        c += 1
+        #if len(D.get_field(d, "Admin")) == 0:
+        #    c += 1
+        #    continue
+        #    #print(d, D.lookup(d))
+        tax = D.get_field(d, "Taxonomy")
+        for t in tax:
+            if t == 'C10004 Archives and libraries':
+                print(D.get_field(d, "Context"))
+            if t in taxonomies:
+                taxonomies[t] += 1
+            else:
+                taxonomies[t] = 1
+    print(c)
+    exit()
+
+    print(taxonomies)
+    print(sum([v for k,v in taxonomies.items() if k != 'C10136 Official publications']))
+
+    T = UKGWATextIndex(stop_words = ["", "and", "of", "the", "in", "a", "by", "which", "their","as","an",
+                                     "for","to","if","be","this","on","are","at","were","it","is","that",
+                                     "from","been","has","have","or","there","was","they","with","these"])
+    c = 0
+    for d in D:
+        a = D.get_field(d, "Admin")
+        if len(a) > 0:
+            c += 1
+            T.add_entry(d, a.split(" "))
+    print("Admins:",c)
+
+    P = [p for p in T.get_phrases(min_count=20, min_length=2, max_length=3)]
+    P.sort(key=itemgetter(1), reverse=False)
+    for p in P:
+        print(" ".join(p[0]), p[1])
+
