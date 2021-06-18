@@ -18,6 +18,10 @@ class UKGWATextIndex(UKGWAView):
 
         self.index.add_tokens(tokens, reference)
 
+    def add_entry(self, reference, tokens):
+
+        self.index.add_tokens(tokens, reference)
+
     def _filter(self, field, operator, *value):
 
         search_matches = self.index.search_tokens(*value)
