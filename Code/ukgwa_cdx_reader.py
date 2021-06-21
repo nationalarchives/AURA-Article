@@ -8,29 +8,34 @@ import re
 
 class CDXReader(UKGWAView):
 
-    def __init__(self, url):
+    def __init__(self, url, cdx_list=None):
         super().__init__()
         self.ukgwa_prefix = "https://webarchive.nationalarchives.gov.uk/"
         # https://webarchive.nationalarchives.gov.uk/largefiles-cdx? 
-        cdx_prefix = self.ukgwa_prefix + "largefiles-cdx?url="
-        self.url = url
-        self.cdx_url = cdx_prefix + url
-        self.fields['SNAPSHOT'] = 0
-        self.fields['MIME'] = 1
-        self.fields['CODE'] = 2
-        self.fields['CHECKSUM'] = 3
-        self.fields['CHANGED'] = 4
+        self.fields['DOMAIN'] = 0
+        self.fields['SNAPSHOT'] = 1
+        self.fields['MIME'] = 2
+        self.fields['CODE'] = 3
+        self.fields['CHECKSUM'] = 4
+        self.fields['CHANGED'] = 5
         self.min_snapshot = 90000000000000
         self.max_snapshot = 00000000000000
         self.snapshot_count = 0
-        self.snapshot_list = []
-        try:
-            self.return_list =  urllib.request.urlopen(self.cdx_url)
-            self.success = True
-        except:
-            self.success = False
-        if not self.success:
-            self.return_list = self.backup()
+        if cdx_list is None:
+            cdx_prefix = self.ukgwa_prefix + "largefiles-cdx?url="
+            self.url = url
+            self.cdx_url = cdx_prefix + url
+            try:
+                self.return_list =  urllib.request.urlopen(self.cdx_url)
+                self.success = True
+            except:
+                self.success = False
+            if not self.success:
+                self.return_list = self.backup()
+                self.success = True
+
+        else:
+            self.return_list = cdx_list
             self.success = True
 
     def backup(self):
@@ -79,13 +84,19 @@ class CDXReader(UKGWAView):
             return
 
         prev_checksum = '0'
+        if self.return_list is None:
+            self.success = False
+            return
         for row in self.return_list:
-            fields = str(row)[2:-3].split(" ")
+            if isinstance(row, str):
+                fields = row.strip().split(" ")
+            else:
+                fields = str(row, encoding='utf-8').strip().split(" ")
             if fields[4] not in returncodes:
                 continue
             # row_dict not used but unable to test at moment
             #row_dict = {'snapshot':int(fields[1]), 'mime':fields[3], 'code':fields[4], 'checksum':fields[5]}
-            entry = [int(fields[1]), fields[3], fields[4], fields[5], prev_checksum != fields[5]]
+            entry = [fields[0], int(fields[1]), fields[3], fields[4], fields[5], prev_checksum != fields[5]]
             prev_checksum = fields[5]
             self.min_snapshot = min(self.min_snapshot, entry[self.fields['SNAPSHOT']])  #row_dict['snapshot'])
             self.max_snapshot = max(self.max_snapshot, entry[self.fields['SNAPSHOT']])  #row_dict['snapshot'])
