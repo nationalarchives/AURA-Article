@@ -10,7 +10,8 @@ class CDXReader(UKGWAView):
 
     def __init__(self, url, cdx_list=None):
         field_list = ['DOMAIN','SNAPSHOT','MIME','CODE','CHECKSUM','CHANGED']
-        super().__init__(field_list)
+        super().__init__()
+        self.set_fields(field_list)
         self.ukgwa_prefix = "https://webarchive.nationalarchives.gov.uk/"
         # https://webarchive.nationalarchives.gov.uk/largefiles-cdx? 
         self.min_snapshot = 90000000000000
