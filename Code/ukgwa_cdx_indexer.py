@@ -58,7 +58,9 @@ class TemporalIndexer(UKGWAView):
 
 if __name__ == '__main__':
     T = TemporalIndexer()
-    T.load_from_gzip("../Data/ukgwa_cdx_data.psv.gz")
+    T.add_entry("www.environment-agency.gov.uk")
+    print(T.lookup("www.environment-agency.gov.uk"))
+    #T.load_from_gzip("../Data/ukgwa_cdx_data.psv.gz")
     exit()
 
     T.add_entry("www.hm-treasury.gov.uk/d/sanctionsconlist.txt","E1")
