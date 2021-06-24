@@ -11,13 +11,9 @@ class UKGWAIndex(UKGWAView):
                        id_prefix = "UKGWA",
                        file_delimiter = "|"):
 
-        super().__init__()
+        field_list = ['REF','TEXT','CAT','URL','CATREF']
+        super().__init__(field_list)
         # self.add_entry(reference, [reference, link.text.replace("\n"," ").strip(), category, href, 'N'])
-        self.fields['REF'] = 0
-        self.fields['TEXT'] = 1
-        self.fields['CAT'] = 2
-        self.fields['URL'] = 3
-        self.fields['CATREF'] = 4
         self.discoverylookup = {}
         self.filedelimiter = file_delimiter
         self.ukgwa_prefix = ukgwa_prefix

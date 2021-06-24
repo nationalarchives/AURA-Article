@@ -9,15 +9,10 @@ import re
 class CDXReader(UKGWAView):
 
     def __init__(self, url, cdx_list=None):
-        super().__init__()
+        field_list = ['DOMAIN','SNAPSHOT','MIME','CODE','CHECKSUM','CHANGED']
+        super().__init__(field_list)
         self.ukgwa_prefix = "https://webarchive.nationalarchives.gov.uk/"
         # https://webarchive.nationalarchives.gov.uk/largefiles-cdx? 
-        self.fields['DOMAIN'] = 0
-        self.fields['SNAPSHOT'] = 1
-        self.fields['MIME'] = 2
-        self.fields['CODE'] = 3
-        self.fields['CHECKSUM'] = 4
-        self.fields['CHANGED'] = 5
         self.min_snapshot = 90000000000000
         self.max_snapshot = 00000000000000
         self.snapshot_count = 0
