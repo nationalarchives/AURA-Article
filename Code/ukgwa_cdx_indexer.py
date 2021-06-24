@@ -11,7 +11,8 @@ class TemporalIndexer(UKGWAView):
     def __init__(self):
 
         field_list = ['MIN','MAX','COUNT','CDX']
-        super().__init__(field_list)
+        super().__init__()
+        self.set_fields(field_list)
 
     def add_entry(self, url, identifier=None, cdx_list = None):
 
