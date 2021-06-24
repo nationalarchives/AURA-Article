@@ -41,12 +41,15 @@ class UKGWAOperator:
 
 class UKGWAView:
 
-    def __init__(self, field_list):
+    def __init__(self):
 
         self.index = {}
+        self.set_fields([])
+        self.operator = UKGWAOperator()
+
+    def set_fields(self, field_list):
         self.field_list = field_list
         self.fields = dict([(f,i) for i,f in enumerate(self.field_list)])
-        self.operator = UKGWAOperator()
 
     def _get_truth(self,index_value, relation, value):
         ops = {'>': self.operator.gt,

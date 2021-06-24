@@ -6,7 +6,7 @@ class UKGWATextIndex(UKGWAView):
 
     def __init__(self, stop_words = set(), eol_symbol = '$'):
 
-        super().__init__([])
+        super().__init__()
         # self.add_entry(reference, [reference, link.text.replace("\n"," ").strip(), category, href, 'N'])
         self.eol_symbol = eol_symbol  # Character to add to end of tokens for suffix array (otherwise it doesn't work)
         #self.fields['REF'] = 0   # Not sure what fields there need to be yet; default field of NGRAM for consistency with API?
