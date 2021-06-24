@@ -96,7 +96,7 @@ class CDXReader(UKGWAView):
                 continue
             # row_dict not used but unable to test at moment
             #row_dict = {'snapshot':int(fields[1]), 'mime':fields[3], 'code':fields[4], 'checksum':fields[5]}
-            entry = [fields[0], int(fields[1]), fields[3], fields[4], fields[5], prev_checksum != fields[5]]
+            entry = [fields[0], int(fields[1].ljust(14, '0')), fields[3], fields[4], fields[5], prev_checksum != fields[5]]
             prev_checksum = fields[5]
             self.min_snapshot = min(self.min_snapshot, entry[self.fields['SNAPSHOT']])  #row_dict['snapshot'])
             self.max_snapshot = max(self.max_snapshot, entry[self.fields['SNAPSHOT']])  #row_dict['snapshot'])
