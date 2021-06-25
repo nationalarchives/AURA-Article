@@ -99,11 +99,33 @@ class CDXReader(UKGWAView):
             self.snapshot_count += 1
             self.add_entry(entry[self.fields['SNAPSHOT']], entry)
 
+    def nearest_to(self, timestamp):
+
+        if isinstance(timestamp, str):
+            test_time = int(timestamp.ljust(14, '0'))
+        else:
+            test_time = timestamp
+
+        best_diff = 999999999999
+        nearest = 0
+        for snap in self:
+            this_diff = abs(test_time-snap)
+            if this_diff < best_diff:
+                best_diff = this_diff
+                nearest = snap
+
+        return nearest
+
+
+
+
 if __name__ == '__main__':
     #mycdx = CDXReader("www.hm-treasury.gov.uk/d/sanctionsconlist.txt")
-    #mycdx = CDXReader("www.salt.gov.uk/industry_activity.html")
-    mycdx = CDXReader("http://ukinholysee.fco.gov.uk/en/news/?view=News&id=791576182")
+    mycdx = CDXReader("www.salt.gov.uk/industry_activity.html")
+    #mycdx = CDXReader("http://ukinholysee.fco.gov.uk/en/news/?view=News&id=791576182")
     mycdx.read_cdx()
     print(mycdx.index)
     for s in mycdx:
         print(s)
+
+    print("Best:",mycdx.nearest_to("20081101"))
