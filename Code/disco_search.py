@@ -15,13 +15,16 @@ class DiscoSearch(UKGWAView):
     def __init__(self, page_limit=100, search_limit=1000, randomised=False):
 
         super().__init__()
-        self.field_list = ["id", "description", "startDate", "endDate", "urlParameters", "adminHistory", "context", "taxonomies"] # Discovery fields
+        field_list = ["id", "description", "startDate", "endDate", "urlParameters", "adminHistory",
+                           "context", "taxonomies", "reference"] # Discovery fields
+        self.set_fields(field_list)
         #self.field_list = ["id","coveringDates","coveringFromDate","coveringToDate","recordOpeningDate",["scopeContent","description"],
         #                   "closureType","citableReference","isParent"]
         self.page_limit = page_limit
         self.randomised = randomised
         self.ABSOLUTEMAX = 10000
-        self.fields = {"IAID" : 0, "Description" : 1, "StartDate": 2, "EndDate": 3, "Path": 4, "Admin": 5, "Context": 6, "Taxonomy": 7}
+        #self.fields = {"IAID" : 0, "Description" : 1, "StartDate": 2, "EndDate": 3, "Path": 4, "Admin": 5,
+        #               "Context": 6, "Taxonomy": 7}
         self.sample_pct = 0.01
         self.min_sample = 10
         self.max_sample = 500
@@ -171,10 +174,73 @@ class DiscoSearch(UKGWAView):
 
 if __name__ == "__main__":
 
+    import csv
+    from bs4 import BeautifulSoup as BS
+
+    quotes = "&#34"
+    start_tag = "<extref href=" + quotes
+    end_tag = "</extref>"
+    ukgwa = "webarchive.nationalarchives.gov.uk"
+    cat_file = open("8_Catalogue_Descriptions.csv","r", encoding = 'latin1')
+    cat_desc = csv.reader(cat_file)
+    out_file = open("web_catrefs.txt","w")
+    for row in cat_desc:
+        catref = row[0]
+        desc = row[7]
+        text = desc
+
+        extref_start = text.find(start_tag)
+        gotone = False
+        while extref_start >= 0:
+            extref_end = text.find(end_tag)
+            extref = text[extref_start+len(start_tag):extref_end]
+            web = text.find(ukgwa)
+            #if web >= 0:
+            #    print(web, extref_start, extref_end)
+            if web >= 0:
+                if extref_start < text.find(ukgwa) < extref_end:
+                    quote_pos = extref.find(quotes)
+                    if quote_pos > 0:
+                        extref = extref[:quote_pos]
+                        print(catref,extref)
+                        out_file.write(catref + "|" + extref + "\n")
+                        gotone = True
+                    else:
+                        print("No end quote:", extref)
+            text = text[extref_end+len(end_tag):]
+            extref_start = text.find(start_tag)
+            #if extref_start >= 0:
+            #    print("S:",extref_start, "T:",text, "E:",extref_end)
+        #if gotone:
+        #    break
+
+    out_file.close()
+
+    ref_file = open("web_catrefs.txt","r")
+    lookup = {}
+    for row in ref_file:
+        fields = row[:-1].split("|")
+        if fields[0] in lookup:
+            lookup[fields[0]].append(fields[1])
+        else:
+            lookup[fields[0]] = [fields[1]]
+    ref_file.close()
+        
+    cat_file.close()
+
     D = DiscoSearch()
 
     D.add_entry("web AND snapshots", [])
 
+    c = 0
+    for d in D:
+        print(D.lookup(d))
+        c += 1
+        if c == 5:
+            break
+
+
+    exit()
     c = 0
     taxonomies = {}
     for d in D:
@@ -183,10 +249,10 @@ if __name__ == "__main__":
         #    c += 1
         #    continue
         #    #print(d, D.lookup(d))
-        tax = D.get_field(d, "Taxonomy")
+        tax = D.get_field(d, "taxonomies")
         for t in tax:
             if t == 'C10004 Archives and libraries':
-                print(D.get_field(d, "Context"))
+                print(D.get_field(d, "context"))
             if t in taxonomies:
                 taxonomies[t] += 1
             else:
@@ -202,7 +268,7 @@ if __name__ == "__main__":
                                      "from","been","has","have","or","there","was","they","with","these"])
     c = 0
     for d in D:
-        a = D.get_field(d, "Admin")
+        a = D.get_field(d, "adminHistory")
         if len(a) > 0:
             c += 1
             T.add_entry(d, a.split(" "))
