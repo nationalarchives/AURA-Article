@@ -43,7 +43,11 @@ class UKGWAIndex(UKGWAView):
         discoveryfile = open(filepath, 'r')
         for row in discoveryfile:
             fields = row[:-1].split(self.filedelimiter)
-            self.discoverylookup[fields[2]] = fields[0]
+            url = fields[1]
+            star_pos = url.find("/*/")
+            if star_pos > 0:
+                url = url[star_pos+3:]
+            self.discoverylookup[url] = fields[0]
         discoveryfile.close()
         for k,v in self.discoverylookup.items():
             break
