@@ -6,5 +6,5 @@ This article was submitted to the Archival Science special issue "Challenges and
 To view and run Notebook 2 in Google Colab, follow this link:
 [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nationalarchives/UKGWA-computational-access/blob/main/Extracting_data_from_the_UKGWA.ipynb)
 
-To view and run Notebook 2 in MyBinder, follow this link:
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nationalarchives/UKGWA-computational-access/HEAD?filepath=blob%2Fmain%2FExtracting_data_from_the_UKGWA.ipynb)
+To view and run the notebooks in MyBinder, follow this link:
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/mark-bell-tna/ComputationalAccess/HEAD)
