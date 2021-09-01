@@ -21,7 +21,7 @@ class CDXReader(UKGWAView):
             cdx_prefix = self.ukgwa_prefix + "cdx?url="
             self.url = url
             self.cdx_url = cdx_prefix + url
-            print("Trying", cdx_url)
+            print("Trying", self.cdx_url)
             try:
                 self.return_list =  urllib.request.urlopen(self.cdx_url)
                 self.success = True
