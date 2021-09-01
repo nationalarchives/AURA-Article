@@ -5,6 +5,7 @@ from urllib.error import HTTPError
 from ukgwa_view import UKGWAView
 from bs4 import BeautifulSoup
 import re
+import json
 
 class CDXReader(UKGWAView):
 
@@ -21,7 +22,6 @@ class CDXReader(UKGWAView):
             cdx_prefix = self.ukgwa_prefix + "cdx?url="
             self.url = url
             self.cdx_url = cdx_prefix + url
-            print("Trying", self.cdx_url)
             try:
                 self.return_list =  urllib.request.urlopen(self.cdx_url)
                 self.success = True
@@ -81,24 +81,23 @@ class CDXReader(UKGWAView):
             return
 
         prev_checksum = '0'
-        if self.return_list is None:
-            self.success = False
-            return
         for row in self.return_list:
-            if isinstance(row, str):
-                fields = row.strip().split(" ")
-            else:
-                fields = str(row, encoding='utf-8').strip().split(" ")
-            if fields[4] not in returncodes:
+            #print(row, type(row))
+            space_split = str(row)[2:-3].split(" ")
+            #print(space_split)
+            fields = space_split[0:2]
+            dictionary = json.loads(" ".join(space_split[2:]))
+            if dictionary['status'] not in returncodes:
                 continue
             # row_dict not used but unable to test at moment
             #row_dict = {'snapshot':int(fields[1]), 'mime':fields[3], 'code':fields[4], 'checksum':fields[5]}
-            entry = [fields[0], int(fields[1].ljust(14, '0')), fields[3], fields[4], fields[5], prev_checksum != fields[5]]
-            prev_checksum = fields[5]
+            entry = [int(fields[1]), dictionary["mime"], dictionary["status"], dictionary["digest"], prev_checksum != dictionary["digest"]]
+            prev_checksum = dictionary["digest"]
             self.min_snapshot = min(self.min_snapshot, entry[self.fields['SNAPSHOT']])  #row_dict['snapshot'])
             self.max_snapshot = max(self.max_snapshot, entry[self.fields['SNAPSHOT']])  #row_dict['snapshot'])
             self.snapshot_count += 1
             self.add_entry(entry[self.fields['SNAPSHOT']], entry)
+
 
     def nearest_to(self, timestamp):
 
