@@ -7,7 +7,7 @@ class UKGWAurl:
 
         self.url = url
         self.hasher = hash_alg
-        self.ukgwa_prefix = "webarchive.nationalarchives.gov.uk/"
+        self.ukgwa_prefix = "webarchive.nationalarchives.gov.uk/ukgwa/"
         self.ukgwa_protocol = "https://"
         self.prefix_len = len(self.ukgwa_prefix)
         prefix_pos = self.url.find(self.ukgwa_prefix)

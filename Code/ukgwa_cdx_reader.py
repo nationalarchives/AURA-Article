@@ -12,13 +12,13 @@ class CDXReader(UKGWAView):
         field_list = ['DOMAIN','SNAPSHOT','MIME','CODE','CHECKSUM','CHANGED']
         super().__init__()
         self.set_fields(field_list)
-        self.ukgwa_prefix = "https://webarchive.nationalarchives.gov.uk/"
-        # https://webarchive.nationalarchives.gov.uk/largefiles-cdx? 
+        self.ukgwa_prefix = "https://webarchive.nationalarchives.gov.uk/ukgwa/"
+        # https://webarchive.nationalarchives.gov.uk/largefiles-cdx?
         self.min_snapshot = 90000000000000
         self.max_snapshot = 00000000000000
         self.snapshot_count = 0
         if cdx_list is None:
-            cdx_prefix = self.ukgwa_prefix + "largefiles-cdx?url="
+            cdx_prefix = self.ukgwa_prefix + "cdx?url="
             self.url = url
             self.cdx_url = cdx_prefix + url
             try:
