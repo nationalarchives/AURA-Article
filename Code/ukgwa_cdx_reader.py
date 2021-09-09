@@ -14,6 +14,7 @@ class CDXReader(UKGWAView):
         super().__init__()
         self.set_fields(field_list)
         self.ukgwa_prefix = "https://webarchive.nationalarchives.gov.uk/ukgwa/"
+        cdx_options = "&output=json"
         # https://webarchive.nationalarchives.gov.uk/largefiles-cdx?
         self.min_snapshot = 90000000000000
         self.max_snapshot = 00000000000000
@@ -21,7 +22,7 @@ class CDXReader(UKGWAView):
         if cdx_list is None:
             cdx_prefix = self.ukgwa_prefix + "cdx?url="
             self.url = url
-            self.cdx_url = cdx_prefix + url
+            self.cdx_url = cdx_prefix + url + cdx_options
             try:
                 self.return_list =  urllib.request.urlopen(self.cdx_url)
                 self.success = True
@@ -82,22 +83,16 @@ class CDXReader(UKGWAView):
 
         prev_checksum = '0'
         for row in self.return_list:
-            #print(row, type(row))
-            space_split = str(row)[2:-3].split(" ")
-            #print(space_split)
-            fields = space_split[0:2]
-            dictionary = json.loads(" ".join(space_split[2:]))
+            dictionary = json.loads(row)
             if dictionary['status'] not in returncodes:
                 continue
-            # row_dict not used but unable to test at moment
-            #row_dict = {'snapshot':int(fields[1]), 'mime':fields[3], 'code':fields[4], 'checksum':fields[5]}
-            entry = [fields[0], int(fields[1]), dictionary["mime"], dictionary["status"], dictionary["digest"], prev_checksum != dictionary["digest"]]
+            entry = [dictionary["urlkey"], int(dictionary["timestamp"]), dictionary["mime"],
+                     dictionary["status"], dictionary["digest"], prev_checksum != dictionary["digest"]]
             prev_checksum = dictionary["digest"]
-            self.min_snapshot = min(self.min_snapshot, entry[self.fields['SNAPSHOT']])  #row_dict['snapshot'])
-            self.max_snapshot = max(self.max_snapshot, entry[self.fields['SNAPSHOT']])  #row_dict['snapshot'])
+            self.min_snapshot = min(self.min_snapshot, entry[self.fields['SNAPSHOT']])
+            self.max_snapshot = max(self.max_snapshot, entry[self.fields['SNAPSHOT']])
             self.snapshot_count += 1
             self.add_entry(entry[self.fields['SNAPSHOT']], entry)
-
 
     def nearest_to(self, timestamp):
 
@@ -121,10 +116,9 @@ class CDXReader(UKGWAView):
 
 if __name__ == '__main__':
     #mycdx = CDXReader("www.hm-treasury.gov.uk/d/sanctionsconlist.txt")
-    mycdx = CDXReader("www.salt.gov.uk/industry_activity.html")
+    mycdx = CDXReader("http://www.salt.gov.uk/industry_activity.html")
     #mycdx = CDXReader("http://ukinholysee.fco.gov.uk/en/news/?view=News&id=791576182")
     mycdx.read_cdx()
-    print(mycdx.index)
     for s in mycdx:
         print(s)
 
