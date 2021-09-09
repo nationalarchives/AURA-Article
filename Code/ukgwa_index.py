@@ -6,7 +6,7 @@ from ukgwa_query import QueryEngine
 
 class UKGWAIndex(UKGWAView):
 
-    def __init__(self, ukgwa_prefix = "https://webarchive.nationalarchives.gov.uk/ukgwa/",
+    def __init__(self, ukgwa_prefix = "https://webarchive.nationalarchives.gov.uk/",
                        index_url = "http://www.nationalarchives.gov.uk/webarchive/atoz/",
                        id_prefix = "UKGWA",
                        file_delimiter = "|"):
