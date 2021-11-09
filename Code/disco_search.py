@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 from ukgwa_view import UKGWAView
 from ukgwa_textindex import UKGWATextIndex
 import random
-import networkx as nx
 from operator import itemgetter
 
 

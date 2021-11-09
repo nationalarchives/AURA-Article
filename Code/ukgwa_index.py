@@ -83,6 +83,8 @@ class UKGWAIndex(UKGWAView):
             href = href[len(self.ukgwa_prefix):]
             category = href.split("/")[0]
             href = href[len(category)+1:]
+            if href[:2] == "*/":
+                href = href[2:]
             if len(href) == 0:
                 continue
             if href[:2] == "*/":
