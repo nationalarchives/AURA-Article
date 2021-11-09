@@ -3,6 +3,7 @@ from urllib.request import urlopen
 import re
 from ukgwa_view import UKGWAView
 from ukgwa_query import QueryEngine
+from ukgwa_url import UKGWAurl
 
 class UKGWAIndex(UKGWAView):
 
@@ -47,7 +48,12 @@ class UKGWAIndex(UKGWAView):
             star_pos = url.find("/*/")
             if star_pos > 0:
                 url = url[star_pos+3:]
+            url = UKGWAurl(url)
+            url = url.get_url(prefix=False, snapshot=False)
             self.discoverylookup[url] = fields[0]
+            if url[0:5] == "http:":
+                s_url = "https" + url[4:]
+                self.discoverylookup[url] = fields[0]
         discoveryfile.close()
         for k,v in self.discoverylookup.items():
             break
@@ -79,6 +85,8 @@ class UKGWAIndex(UKGWAView):
             href = href[len(category)+1:]
             if len(href) == 0:
                 continue
+            if href[:2] == "*/":
+                href = href[2:]
             row_id += 1
             reference = self.id_prefix + "." + str(row_id)
             self.add_entry(reference, [reference, link.text.replace("\n"," ").strip(), category, href, 'N'])
@@ -102,11 +110,12 @@ if __name__ == "__main__":
     idx = UKGWAIndex()
     idx.indexfromweb()
     idx.indextofile("testatozfile.txt")
-    idx.discoveryfromfile("/home/research1/WEBARCH/5VIEWS/Data/disco_ukgwa_links.txt")
+    idx.discoveryfromfile("../Data/ukgwa_catrefs.txt")
     for x in idx:
         print("Entry",x)
         break
 
+    exit()
     print(idx.lookup("UKGWA.5"))
     idx.update_field("UKGWA.5", "CATREF", "HO 42")
     idx.update_field("UKGWA.9", "CATREF", "HO 47")
