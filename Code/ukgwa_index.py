@@ -45,15 +45,11 @@ class UKGWAIndex(UKGWAView):
         for row in discoveryfile:
             fields = row[:-1].split(self.filedelimiter)
             url = fields[1]
-            star_pos = url.find("/*/")
-            if star_pos > 0:
-                url = url[star_pos+3:]
+            #star_pos = url.find("/*/")
+            #if star_pos > 0:
+            #    url = url[star_pos+3:]
             url = UKGWAurl(url)
-            url = url.get_url(prefix=False, snapshot=False)
             self.discoverylookup[url] = fields[0]
-            if url[0:5] == "http:":
-                s_url = "https" + url[4:]
-                self.discoverylookup[url] = fields[0]
         discoveryfile.close()
         for k,v in self.discoverylookup.items():
             break
@@ -63,10 +59,21 @@ class UKGWAIndex(UKGWAView):
 
     def _matchukgwatodiscovery(self):
 
+        discovery_urls = [u for u in self.discoverylookup.keys()]
         for idx in self:
             url = self.get_field(idx, 'URL')
-            if url in self.discoverylookup:
-                self.update_field(idx, 'CATREF', self.discoverylookup[url])
+            found = False
+            #print(url.get_url(prefix=False, snapshot=False))
+            for i,u in enumerate(discovery_urls):
+                #print("\t",u.get_url(prefix=False,snapshot=False))
+                if url.equals(u):
+                    found = True
+                    break
+
+            if found:
+                discovery_urls.pop(i)
+
+                self.update_field(idx, 'CATREF', self.discoverylookup[u])
 
     def indexfromweb(self):
 
@@ -80,18 +87,17 @@ class UKGWAIndex(UKGWAView):
         row_id = 0
         for link in links:
             href = link['href']
-            href = href[len(self.ukgwa_prefix):]
-            category = href.split("/")[0]
-            href = href[len(category)+1:]
-            if href[:2] == "*/":
-                href = href[2:]
-            if len(href) == 0:
-                continue
-            if href[:2] == "*/":
-                href = href[2:]
+            url = UKGWAurl(href)
+            #href = href[len(self.ukgwa_prefix):]
+            #category = href.split("/")[0]
+            #href = href[len(category)+1:]
+            #if len(href) == 0:
+            #    continue
+            #if href[:2] == "*/":
+            #    href = href[2:]
             row_id += 1
             reference = self.id_prefix + "." + str(row_id)
-            self.add_entry(reference, [reference, link.text.replace("\n"," ").strip(), category, href, 'N'])
+            self.add_entry(reference, [reference, link.text.replace("\n"," ").strip(), url.collection, url, 'N'])
         self.maxindex = row_id
 
 #    def __iter__(self):
@@ -111,11 +117,14 @@ if __name__ == "__main__":
 
     idx = UKGWAIndex()
     idx.indexfromweb()
-    idx.indextofile("testatozfile.txt")
+    #idx.indextofile("testatozfile.txt")
     idx.discoveryfromfile("../Data/ukgwa_catrefs.txt")
+    bis = 0
     for x in idx:
-        print("Entry",x)
-        break
+        catref = idx.get_field(x,'CATREF')
+        if "BIS " in catref:
+            bis += 1
+    print("BIS:",bis)
 
     exit()
     print(idx.lookup("UKGWA.5"))
