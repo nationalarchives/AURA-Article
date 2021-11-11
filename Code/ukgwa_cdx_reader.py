@@ -84,6 +84,7 @@ class CDXReader(UKGWAView):
         prev_checksum = '0'
         for row in self.return_list:
             dictionary = json.loads(row)
+            #print("D",dictionary)
             if dictionary['status'] not in returncodes:
                 continue
             entry = [dictionary["urlkey"], int(dictionary["timestamp"]), dictionary["mime"],
