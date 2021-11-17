@@ -9,10 +9,10 @@ There are a number of options for viewing and interacting with the notebooks:
 * MyBinder: a cloud hosted notebook environment, offering a similar experience to Colabs
 
 To view Notebook 1 in NBViewer, follow this link:
-[!NBViewer Notebook1]https://nbviewer.org/github/nationalarchives/UKGWA-computational-access/blob/main/Computational_Access_to_UKGWA.ipynb
+[NBViewer Notebook1](https://nbviewer.org/github/nationalarchives/UKGWA-computational-access/blob/main/Computational_Access_to_UKGWA.ipynb)
 
 To view Notebook 2 in NBViewer, follow this link:
-[!NBViewer Notebook2]https://nbviewer.org/github/nationalarchives/UKGWA-computational-access/blob/main/Extracting_data_from_the_UKGWA.ipynb
+[NBViewer Notebook2](https://nbviewer.org/github/nationalarchives/UKGWA-computational-access/blob/main/Extracting_data_from_the_UKGWA.ipynb)
 
 Both Colabs and MyBinder notebooks are fully interactive allowing a user to execute code blocks, and edit the code within them. Both environments are relatively intuitive to use, and both have a keyboard shortcut of Ctrl+Enter to execute a block of code. It is highly recommended to execute the blocks in order as many are dependent on the results of previous blocks.
 
