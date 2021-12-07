@@ -5,6 +5,8 @@ The notebooks in this repository accompany the article "Keeping it under lock an
 There are a number of options for viewing and interacting with the notebooks:
 * Github: open directly in Github. This is not recommended as not all visualisations will render.
 * NBViewer.org: a static rendering of the notebooks for reading their contents
+
+****** NOTE: there is currently an issue accessing the Discovery API from the Google Cloud Platform which means it is not possible to refresh the Discovery data in Notebook 1 using Colab or MyBinder. This is a temporary situation which will be resolved soon ******
 * Google Colabs: a Google hosted notebook environment allowing a viewer to edit and run executable sections of the notebook. Requires a Google account
 * MyBinder: a cloud hosted notebook environment, offering a similar experience to Colabs
 
